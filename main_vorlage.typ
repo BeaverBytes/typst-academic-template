@@ -36,6 +36,8 @@
 *      "Titel der Tabelle",
 *      hinweis: [Optionaler Hinweis zur Tabelle.],
 *      quelle: "Eigene Darstellung.",
+*      breite: auto,        // auto (Standard) | 100% | 12cm | ...
+*      stil:   "voll",      // "voll" (Standard) | "horizontal"
 *    )[
 *      #table(
 *        columns: 3,
@@ -47,6 +49,16 @@
 *        [CH], [2], [4 %],
 *      )
 *    ]
+*
+*    Hinweise zu den Toggles:
+*      - breite: auto    -> Tabelle so breit wie ihr Inhalt, zentriert.
+*      - breite: 100%    -> Tabelle nimmt die volle Seitenbreite ein.
+*                           (In der inneren #table muss eine flexible
+*                           Spaltenangabe stehen, z. B. columns: (auto, 1fr).)
+*      - stil: "voll"        -> komplettes Linienraster.
+*      - stil: "horizontal"  -> nur horizontale Linien zwischen den Zeilen,
+*                               keine vertikalen Linien, keine oberste/
+*                               unterste Rahmenlinie (wie im Screenshot).
 *
 *
 * 5) Abkürzung ergänzen
@@ -192,21 +204,39 @@
 = Kapitel
 
 #lorem(200)
-Dies ist ein indirektes Beispielzitat nach @muster2020[S. 15].
+Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 
 == Unterkapitel
 
-#lorem(300)
+#lorem(250) @wikipedia_typst[Beispielartikel].
 
-#abbildung(
-  "beaverbytes-logo.svg",
-  "BeaverBytes Logo",
-  hinweis: "Hier könnte ein Hinweis zur Abbildung stehen.",
+#linebreak()
+
+== Beispiel für eine Tabelle
+
+#lorem(75)@homer_odyssee.
+#lorem(35)
+
+#tabelle(
+  "Testtabelle",
+  hinweis: "Hier kann ein Hinweis zur Tabelle stehen.",
   quelle: "Eigene Darstellung.",
-  breite: 5cm,
-)
+  breite: 100%
+)[
+  #table(
+    columns: (1fr, 1fr, 1fr),
+    inset: 5pt,
 
-#lorem(20)
+    [Spalte A], [Spalte B], [Spalte C],
+    [Wert 1], [Wert 2], [Wert 3],
+    [Wert 4], [Wert 5], [Wert 6],
+    [Wert 7], [Wert 8], [Wert 9],
+  )
+]
+
+#linebreak()
+
+#lorem(100)
 
 #abbildung(
   "beaverbytes-logo.svg",
@@ -215,27 +245,31 @@ Dies ist ein indirektes Beispielzitat nach @muster2020[S. 15].
   breite: 7cm,
 )
 
+#linebreak()
 === Unterunterkapitel
 
-#lorem(10)
+#lorem(170)
 
 #pagebreak()
 
-== Beispiel für eine Tabelle
+
+== Noch ein Beispiel für eine Tabelle
 
 #tabelle(
-  "Testtabelle",
-  hinweis: [Hier kann ein Hinweis zur Tabelle stehen.],
+  "Demo Tabelle",
   quelle: "Eigene Darstellung.",
+  breite: 100%,
+  stil: "horizontal",
 )[
   #table(
-    columns: 3,
+    columns: (1fr, 1fr, 1fr, 1fr, 1fr),
     inset: 6pt,
 
-    [Land], [Anzahl], [Anteil],
-    [DE], [45], [87 %],
-    [AT], [5], [10 %],
-    [CH], [2], [4 %],
+    [Spalte A], [Spalte B], [Spalte C], [Spalte D], [Spalte E],
+    [Wert 1], [Wert 2], [Wert 3], [Wert 4], [Wert 5],
+    [Wert 6], [Wert 7], [Wert 8], [Wert 9], [Wert 10],
+    [Wert 11], [Wert 12], [Wert 13], [Wert 14], [Wert 15],
+    [Wert 16], [Wert 17], [Wert 18], [Wert 19], [Wert 20],
   )
 ]
 
@@ -274,28 +308,34 @@ Dies ist ein indirektes Beispielzitat nach @muster2020[S. 15].
 * ============================================================================
 */
 
-#anhang("Projektstruktur und Entwicklungsartefakte")[
-  #anhangteil("Ordnerstruktur")[
-    Inhalt zu Ordnerstruktur.
+#anhang("Testanhang")[
+  #anhangteil("Testanhang Teil 1")[
+    Inhalt zu Testanhang 1.
   ]
 
   #pagebreak()
 
-  #anhangteil("SQLite Schema")[
-    Inhalt zu SQLite Schema.
+  #anhangteil("Testanhang Teil 2")[
+    Inhalt zu Testanhang 2.
+  ]
+
+  #pagebreak()
+
+  #anhangteil("Testanhang Teil 3")[
+    Inhalt zu Testanhang 3.
   ]
 ]
 
 #pagebreak()
 
-#anhang("Benutzeroberfläche des MVP")[
-  #anhangteil("Karrierestartseite")[
-    Inhalt zur Karrierestartseite.
+#anhang("Demo Anhang")[
+  #anhangteil("1. Demo Anhang")[
+    Inhalt zum 1. Demo Anhang.
   ]
 
   #pagebreak()
 
-  #anhangteil("Stellenübersicht")[
-    Inhalt zur Stellenübersicht.
+  #anhangteil("2. Demo Anhang")[
+    Inhalt zum 2. Demo Anhang.
   ]
 ]

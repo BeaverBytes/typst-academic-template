@@ -283,41 +283,88 @@
   ]
 }
 
+// Stil-Optionen für Tabellen:
+//   "voll"       -> komplettes Linienraster (Standard)
+//   "horizontal" -> nur horizontale Linien zwischen den Zeilen,
+//                   keine vertikalen Linien, keine oberste/unterste Rahmenlinie
+//
+// Breiten-Optionen:
+//   auto         -> Tabelle so breit wie ihr Inhalt, zentriert (Standard)
+//   100%, 1fr, … -> Tabelle nimmt die vorgegebene Breite ein (z. B. volle Seite)
+//   12cm, …      -> feste Breite
 #let tabelle(
   titel,
   body,
   hinweis: none,
   quelle: "Eigene Darstellung.",
   hinweis-quelle-abstand: hinweis-quelle-standardabstand,
+  breite: auto,
+  stil: "voll",
 ) = [
   #tab-counter.step()
 
   #context {
     let nr = tab-counter.get().at(0)
 
+    // Wenn der Aufrufer keine explizite Breite angibt, wird die natürliche
+    // Tabellenbreite gemessen, damit Titel/Hinweis/Quelle linksbündig relativ zur
+    // (zentrierten) Tabelle stehen. Bei expliziter Breite (z. B. 100%) übernehmen
+    // wir diese direkt.
+    let tab-breite = if breite == auto {
+      measure(body).width
+    } else {
+      breite
+    }
+
+    // Tabellen-Stil festlegen. Bei "horizontal" werden vertikale Linien sowie die
+    // oberste und unterste Rahmenlinie unterdrückt; übrig bleiben horizontale
+    // Trennlinien zwischen den Zeilen.
+    let body-styled = if stil == "horizontal" {
+      [
+        #show table: set table(
+          stroke: (x, y) => (
+            top: if y == 0 { none } else { 0.5pt + black },
+            bottom: none,
+            left: none,
+            right: none,
+          ),
+        )
+        #body
+      ]
+    } else {
+      body
+    }
+
     block(
       above: 12pt,
       below: 12pt,
       breakable: false,
+      width: 100%,
     )[
       #metadata((
         nr: nr,
         titel: titel,
       )) <tab-eintrag>
 
-      #text(size: caption-size)[Tab. #nr #titel]
-      #v(6pt)
+      #align(center, block(width: tab-breite)[
+        #set par(
+          justify: false,
+          first-line-indent: 0pt,
+        )
+        #set align(left)
 
-      #align(center)[
-        #body
-      ]
-      #v(6pt)
+        #text(size: caption-size)[Tab. #nr #titel]
+        #v(6pt)
 
-      #quelle-und-hinweis(
-        hinweis: hinweis,
-        quelle: quelle,
-        abstand: hinweis-quelle-abstand,
-      )
+        #body-styled
+        #v(6pt)
+
+        #quelle-und-hinweis(
+          hinweis: hinweis,
+          quelle: quelle,
+          abstand: hinweis-quelle-abstand,
+        )
+      ])
     ]
   }
 ]
