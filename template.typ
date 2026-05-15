@@ -225,23 +225,34 @@
         titel: titel,
       )) <abb-eintrag>
 
-      #text(size: caption-size)[Abb. #nr #titel]
-      #v(6pt)
+      #grid(
+        columns: (1fr, breite, 1fr),
+        gutter: 0pt,
 
-      #align(center)[
-        #image(pfad, width: breite)
-      ]
-      #v(3pt)
+        [],
+        [
+          #set par(
+            justify: false,
+            first-line-indent: 0pt,
+          )
 
-      #quelle-und-hinweis(
-        hinweis: hinweis,
-        quelle: quelle,
-        abstand: hinweis-quelle-abstand,
+          #text(size: caption-size)[Abb. #nr #titel]
+          #v(6pt)
+
+          #image(pfad, width: 100%)
+          #v(3pt)
+
+          #quelle-und-hinweis(
+            hinweis: hinweis,
+            quelle: quelle,
+            abstand: hinweis-quelle-abstand,
+          )
+        ],
+        [],
       )
     ]
   }
 ]
-
 /*
  * ============================================================
  * TABELLEN UND TABELLENVERZEICHNIS
