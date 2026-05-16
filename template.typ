@@ -414,7 +414,7 @@
  */
 
 #let deckblatt(
-  logo: "beaverbytes-logo.svg",
+  logo: "assets/beaverbytes-logo.svg",
   arbeitstyp: "Arbeitstyp",
   modul: "Modulname",
   institution: "Universität",
