@@ -98,7 +98,7 @@ Alle Beispiele beziehen sich auf `main_vorlage.typ`. Die Datei enthält am Kopf 
   studiengang: "Informatik B.Sc.",
   titel: "Titel der Arbeit",
   autorin: "Max Mustermann",
-  matrikelnummer: "IU14140644",
+  matrikelnummer: "XYZ123",
   betreuung: "Prof. Dr. Musterfrau",
   abgabedatum: datetime(year: 2026, month: 3, day: 31),
 )
