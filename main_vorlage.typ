@@ -22,7 +22,7 @@
 * 3) Abbildung einfügen
 *
 *    #abbildung(
-*      "pfad/zur/datei.png",
+*      "assets/datei.png",
 *      "Titel der Abbildung",
 *      hinweis: "Optionaler Hinweis zur Abbildung.",
 *      quelle: "Eigene Darstellung.",
@@ -110,7 +110,7 @@
 */
 
 #deckblatt(
-  logo: "beaverbytes-logo.svg",
+  logo: "/assets/beaverbytes-logo.svg",
   arbeitstyp: "Hausarbeit",
   modul: "Modul",
   institution: "Universität",
@@ -239,7 +239,7 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 #lorem(100)
 
 #abbildung(
-  "beaverbytes-logo.svg",
+  "/assets/beaverbytes-logo.svg",
   "Weitere Beispielabbildung",
   quelle: "Eigene Darstellung.",
   breite: 7cm,
