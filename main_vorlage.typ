@@ -117,7 +117,7 @@
   studiengang: "Studium B.Sc.",
   titel: "Titel der Arbeit",
   autorin: "Max Mustermann",
-  matrikelnummer: "IU14140644",
+  matrikelnummer: "XYZ123",
   betreuung: "Prof. Dr.  Musterfrau",
   // abgabedatum: datetime(year: 2025, month: 3, day: 31),
 )
