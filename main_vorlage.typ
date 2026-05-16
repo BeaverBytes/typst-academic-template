@@ -154,7 +154,7 @@
 #pagebreak()
 
 
-// Abbildungs- und Tabellenverzeichnis nur einfügen, wenn auch tatsächlich Abbildungen bzw. Tabellen vorhanden sind.
+// Abbildungs- und Tabellenverzeichnis wird nur eingefügt, wenn auch tatsächlich Abbildungen bzw. Tabellen vorhanden sind.
 #context {
   if query(<abb-eintrag>).len() > 0 [
     #abbildungsverzeichnis()
