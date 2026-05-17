@@ -4,88 +4,84 @@
 
 /*
 * ============================================================================
-* KURZANLEITUNG ZUR VERWENDUNG DIESER VORLAGE
+* KURZANLEITUNG
 * ============================================================================
 *
-* 1) Text und Überschriften
+* Überschriften:      = Kapitel | == Unterkapitel | === Abschnitt
+* Zitat (BibTeX):     @schluessel[S. 15]           -> "(Muster, 2020, S. 15)"
+* Seitenumbruch:      #pagebreak()
+* Zeilenumbruch:      #linebreak()
 *
-*    = Kapitel 1
-*    == Unterkapitel 1.1
-*    === Abschnitt 1.1.1
+* Abkürzungsverzeichnis: einfach eine neue Zeile in der #table(...)-Liste
+*                        unten ergänzen, z. B.  [API], [Application ...],
 *
+* Quellen pflegen: in references.bib eintragen, im Text mit @key zitieren.
 *
-* 2) Indirektes Zitat mit BibTeX-Quelle
+* ----------------------------------------------------------------------------
+* ABBILDUNG
+* ----------------------------------------------------------------------------
+* #abbildung(
+*   "assets/datei.png",
+*   "Titel der Abbildung",
+*   hinweis: "Optionaler Hinweis.",       // optional
+*   quelle:  "Eigene Darstellung.",       // Standard
+*   breite:  10cm,                        // 100%, 8cm, 0.5fr, ...
+*   im-anhang: false,                     // true -> innerhalb von #anhang(...)
+*   label:     none,                      // <mein-label> -> "Abb. @mein-label"
+* )
 *
-*    Dies ist ein indirektes Beispielzitat nach @muster2020[S. 15].
+* ----------------------------------------------------------------------------
+* TABELLE
+* ----------------------------------------------------------------------------
+* #tabelle(
+*   "Titel der Tabelle",
+*   hinweis: [Optionaler Hinweis.],
+*   quelle:  "Eigene Darstellung.",
+*   breite:  auto,                        // auto | 100% | 12cm
+*   stil:    "voll",                      // "voll" | "horizontal"
+*   im-anhang: false,
+*   label:     none,
+* )[
+*   #table(
+*     columns: 3,
+*     inset: 6pt,
+*     [Spalte A], [Spalte B], [Spalte C],
+*     [Wert 1],   [Wert 2],   [Wert 3],
+*   )
+* ]
 *
+* Hinweise:
+*   - breite: 100% benötigt flexible Spalten, z. B. columns: (1fr, 1fr, 1fr).
+*   - stil "horizontal": nur waagrechte Trennlinien zwischen Zeilen.
 *
-* 3) Abbildung einfügen
+* ----------------------------------------------------------------------------
+* ABBILDUNG/TABELLE IM ANHANG (APA-Konvention)
+* ----------------------------------------------------------------------------
+*   - im-anhang: true ausschließlich innerhalb von #anhang(...) bzw. #anhangteil(...).
+*   - Max. eine Abbildung UND eine Tabelle pro Anhang(teil).
+*   - Keine eigene Caption (Anhangtitel = Titel), kein Verzeichniseintrag.
+*   - Im Text verweisen über den Anhang: "siehe Anhang A1".
 *
-*    #abbildung(
-*      "assets/datei.png",
-*      "Titel der Abbildung",
-*      hinweis: "Optionaler Hinweis zur Abbildung.",
-*      quelle: "Eigene Darstellung.",
-*      breite: 10cm,
-*    )
+* ----------------------------------------------------------------------------
+* ANHANG
+* ----------------------------------------------------------------------------
+* #anhang("Titel des Hauptanhangs")[
+*   #anhangteil("Titel des Unteranhangs")[
+*     Inhalt.
+*   ]
+* ]
 *
+* Optionales Label für klickbare Verweise:
+*   #anhangteil("Funktionale Anforderungen", label: <func-req>)[ ... ]
+*   Im Text:  "siehe Anhang @func-req"     -> "siehe Anhang A1"
 *
-* 4) Tabelle einfügen
-*
-*    #tabelle(
-*      "Titel der Tabelle",
-*      hinweis: [Optionaler Hinweis zur Tabelle.],
-*      quelle: "Eigene Darstellung.",
-*      breite: auto,        // auto (Standard) | 100% | 12cm | ...
-*      stil:   "voll",      // "voll" (Standard) | "horizontal"
-*    )[
-*      #table(
-*        columns: 3,
-*        inset: 6pt,
-*
-*        [Land], [Anzahl], [Anteil],
-*        [DE], [45], [87 %],
-*        [AT], [5], [10 %],
-*        [CH], [2], [4 %],
-*      )
-*    ]
-*
-*    Hinweise zu den Toggles:
-*      - breite: auto    -> Tabelle so breit wie ihr Inhalt, zentriert.
-*      - breite: 100%    -> Tabelle nimmt die volle Seitenbreite ein.
-*                           (In der inneren #table muss eine flexible
-*                           Spaltenangabe stehen, z. B. columns: (auto, 1fr).)
-*      - stil: "voll"        -> komplettes Linienraster.
-*      - stil: "horizontal"  -> nur horizontale Linien zwischen den Zeilen,
-*                               keine vertikalen Linien, keine oberste/
-*                               unterste Rahmenlinie (wie im Screenshot).
-*
-*
-* 5) Abkürzung ergänzen
-*
-*    Im Abschnitt "Abkürzungsverzeichnis" einfach zwei Zellen ergänzen:
-*    [API], [Application Programming Interface],
-*
-*
-* 6) Literaturquelle ergänzen
-*
-*    Quellen werden in references.bib gepflegt und hier mit @quelle zitiert.
-*    Das Literaturverzeichnis wird automatisch erzeugt.
-*
-*
-* 7) Anhang einfügen
-*
-*    #anhang("Titel des Hauptanhangs")[
-*      #anhangteil("Titel des Unteranhangs")[
-*        Inhalt des Unteranhangs.
-*      ]
-*    ]
-*
-*
-* 8) Seitenumbruch einfügen
-*
-*    #pagebreak()
-*
+* ----------------------------------------------------------------------------
+* @-VERWEISE
+* ----------------------------------------------------------------------------
+* Mit dem `label:`-Parameter bei #abbildung, #tabelle, #anhang, #anhangteil
+* lassen sich klickbare Verweise erzeugen, die nur die Nummer rendern:
+*   "Abb. @foo" -> "Abb. 3"     | "Tab. @bar" -> "Tab. 5"
+*   "Anhang @baz" -> "Anhang A1"
 */
 
 /*
@@ -94,13 +90,12 @@
 * ============================================================================
 */
 
-// Vorlage aus template.typ auf das gesamte Dokument anwenden.
-#show: arbeit
+#show: arbeit       // Template auf das gesamte Dokument anwenden
 
-// Deckblatt und Verzeichnisse verwenden römische Seitenzahlen.
+// Römische Seitenzahlen für Deckblatt und Verzeichnisse.
 #set page(
-  numbering: "I",
-  number-align: center,
+  numbering: "I",         // Format: "I" röm., "1" arab., "i" klein-röm.
+  number-align: center,   // left | center | right
 )
 
 /*
@@ -119,19 +114,19 @@
   autorin: "Max Mustermann",
   matrikelnummer: "XYZ123",
   betreuung: "Prof. Dr.  Musterfrau",
-  // abgabedatum: datetime(year: 2025, month: 3, day: 31),
+  // abgabedatum: datetime(year: 2025, month: 3, day: 31),   // Standard: heute
 )
 
 /*
 * ============================================================================
-* VERZEICHNISSE VOR DEM HAUPTTEXT
+* VERZEICHNISSE VOR DEM HAUPTTEIL
 * ============================================================================
 */
 
-// Inhaltsverzeichnis mit bis zu drei Gliederungsebenen.
+// Inhaltsverzeichnis. Zusätzlicher Vertikalabstand pro Eintrag für Lesbarkeit.
 #[
   #show outline.entry.where(level: 1): it => [
-    #strong(it)
+    #strong(it)                          // Ebene 1 fett
     #v(6pt)
   ]
 
@@ -147,14 +142,14 @@
 
   #outline(
     title: "Inhaltsverzeichnis",
-    depth: 3,
+    depth: 3,                            // Anzahl der angezeigten Ebenen
   )
 ]
 
 #pagebreak()
 
-
-// Abbildungs- und Tabellenverzeichnis wird nur eingefügt, wenn auch tatsächlich Abbildungen bzw. Tabellen vorhanden sind.
+// Abbildungs- und Tabellenverzeichnis wird nur eingefügt, wenn auch tatsächlich
+// Abbildungen bzw. Tabellen im Haupttext vorhanden sind (Anhang ausgeschlossen).
 #context {
   if query(<abb-eintrag>).len() > 0 [
     #abbildungsverzeichnis()
@@ -173,19 +168,19 @@
 * ============================================================================
 */
 
-// #heading(numbering: none)[Abkürzungsverzeichnis]
+#heading(numbering: none)[Abkürzungsverzeichnis]
 
-// #table(
-//   columns: (auto, 1fr),
-//   stroke: none,
-//   inset: 4pt,
+#table(
+  columns: (auto, 1fr),     // 1. Spalte automatisch breit, 2. Spalte füllt Rest
+  stroke: none,             // keine Linien
+  inset: 4pt,               // Innenabstand der Zellen
 
-//   [KI], [Künstliche Intelligenz],
-//   [bzw.], [beziehungsweise],
-//   [z.B.], [zum Beispiel],
-// )
+  // Neue Abkürzung: einfach eine Zeile [Kürzel], [Bedeutung], ergänzen.
+  [bzw.], [beziehungsweise],
+  [z.B.], [zum Beispiel],
+)
 
-// #pagebreak()
+#pagebreak()
 
 /*
 * ============================================================================
@@ -193,7 +188,7 @@
 * ============================================================================
 */
 
-// Ab hier beginnt die arabische Seitenzählung wieder bei 1.
+// Ab hier arabische Seitenzählung, beginnend bei 1.
 #counter(page).update(1)
 
 #set page(
@@ -203,19 +198,21 @@
 
 = Kapitel
 
-#lorem(200)
+#lorem(50)
 Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 
 == Unterkapitel
 
-#lorem(250) @wikipedia_typst[Beispielartikel].
+#lorem(80) @wikipedia_typst[Beispielartikel].
 
 #linebreak()
 
-== Beispiel für eine Tabelle
+=== Beispiel für eine Tabelle
 
-#lorem(75)@homer_odyssee.
-#lorem(35)
+#lorem(55)@homer_odyssee.
+#lorem(15)
+
+#linebreak()
 
 #tabelle(
   "Testtabelle",
@@ -234,10 +231,6 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
   )
 ]
 
-#linebreak()
-
-#lorem(100)
-
 #abbildung(
   "/assets/beaverbytes-logo.svg",
   "Weitere Beispielabbildung",
@@ -246,12 +239,10 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 )
 
 #linebreak()
+
 === Unterunterkapitel
 
 #lorem(170)
-
-#pagebreak()
-
 
 == Noch ein Beispiel für eine Tabelle
 
@@ -283,6 +274,7 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 
 #literaturverzeichnis()
 
+// Seitenumbruch nur, wenn auch zitiert wurde (sonst leere Seite vermeiden).
 #context {
   if query(cite).len() > 0 [
     #pagebreak()
@@ -295,6 +287,7 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 * ============================================================================
 */
 
+// Wird nur eingefügt, wenn auch Anhänge vorhanden sind.
 #context {
   if query(<anhang-eintrag>).len() > 0 [
     #anhangsverzeichnis()
@@ -318,12 +311,6 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
   #anhangteil("Testanhang Teil 2")[
     Inhalt zu Testanhang 2.
   ]
-
-  #pagebreak()
-
-  #anhangteil("Testanhang Teil 3")[
-    Inhalt zu Testanhang 3.
-  ]
 ]
 
 #pagebreak()
@@ -331,11 +318,5 @@ Dies ist ein indirektes Beispielzitat nach @einstein1905[S. 15].
 #anhang("Demo Anhang")[
   #anhangteil("1. Demo Anhang")[
     Inhalt zum 1. Demo Anhang.
-  ]
-
-  #pagebreak()
-
-  #anhangteil("2. Demo Anhang")[
-    Inhalt zum 2. Demo Anhang.
   ]
 ]

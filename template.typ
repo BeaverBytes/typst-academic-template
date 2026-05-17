@@ -6,15 +6,16 @@
  * ============================================================
  */
 
-#let default-font = "Arial"
-#let body-size = 11pt
-#let caption-size = 10pt
-#let hinweis-quelle-standardabstand = 3pt
+// Globale Stilkonstanten — hier zentral anpassen, wirkt im gesamten Dokument.
+#let default-font = "Arial"                  // Schriftart Fließtext und Überschriften
+#let body-size = 11pt                        // Schriftgröße Fließtext
+#let caption-size = 10pt                     // Schriftgröße Captions, Quellen, Hinweise
+#let hinweis-quelle-standardabstand = 3pt    // Vertikaler Abstand zwischen Hinweis und Quelle
 
 #let arbeit(body) = [
   #set page(
-    paper: "a4",
-    margin: (
+    paper: "a4",          // Papierformat, z. B. "a4", "us-letter"
+    margin: (             // Seitenränder
       top: 2cm,
       bottom: 2cm,
       left: 2cm,
@@ -25,45 +26,53 @@
   #set text(
     font: default-font,
     size: body-size,
-    lang: "de",
-    fill: black,
+    lang: "de",           // Sprachcode, beeinflusst Silbentrennung und Anführungszeichen
+    fill: black,          // Textfarbe
   )
 
   #set par(
-    justify: true,
-    leading: 0.5em,
-    first-line-indent: 0pt,
-    spacing: 6pt,
+    justify: true,            // true = Blocksatz, false = Linksbündig
+    leading: 0.5em,           // Zeilenabstand innerhalb eines Absatzes
+    first-line-indent: 0pt,   // Erstzeileneinzug
+    spacing: 6pt,             // Abstand zwischen Absätzen
   )
 
-  #set heading(numbering: "1.1")
+  #set heading(numbering: "1.1")   // Nummerierungsschema: "1.1" -> 1, 1.1, 1.1.1; "I" -> röm.
 
-  // Überschriftenformatierung nach Gliederungsebene.
+  // @-Verweise auf Anhänge/Tabellen/Abbildungen rendern nur die Nummer
+  // (z. B. "A1", "5") als klickbarer Link. Aktiv über `label:`-Parameter
+  // der jeweiligen Funktion.
+  #show ref: it => {
+    let el = it.element
+    if el != none and el.func() == figure and el.kind in ("anhang", "tabelle", "abbildung") {
+      link(it.target, el.supplement)
+    } else {
+      it
+    }
+  }
+
+  // Überschriftengrößen pro Ebene — hier anpassen, um die Hierarchie zu skalieren.
   #show heading: it => {
     let level = it.level
 
     let heading-size = if level == 1 {
-      16pt
+      16pt              // Größe Ebene 1 (=)
     } else if level == 2 {
-      14pt
+      14pt              // Größe Ebene 2 (==)
     } else {
-      body-size
+      body-size         // Größe Ebene 3+ (===)
     }
 
-    let spacing-below = if level == 1 {
-      12pt
-    } else {
-      6pt
-    }
+    let spacing-below = if level == 1 { 12pt } else { 6pt }   // Abstand nach Überschrift
 
     block(
-      above: 12pt,
+      above: 12pt,                   // Abstand vor Überschrift
       below: spacing-below,
     )[
       #text(font: default-font, size: heading-size, weight: "bold")[
         #if it.numbering != none {
           numbering(it.numbering, ..counter(heading).at(it.location()))
-          h(0.6em)
+          h(0.6em)                   // Abstand zwischen Nummer und Titel
         }
         #it.body
       ]
@@ -79,8 +88,10 @@
  * ============================================================
  */
 
+// Punktlinie für Verzeichniseinträge (Titel ........ Seite).
 #let punktlinie() = box(width: 1fr, repeat[.])
 
+// Einheitliche Ausgabe von optionalem Hinweis und Quellenangabe unter Tabellen/Abbildungen.
 #let quelle-und-hinweis(
   hinweis: none,
   quelle: "Eigene Darstellung.",
@@ -100,8 +111,14 @@
  * ============================================================
  */
 
+// Zähler für Hauptanhänge (A, B, …) und Anhangteile (A1, A2, …).
 #let anhang-counter = counter("anhang")
 #let anhangteil-counter = counter("anhangteil")
+
+// Lokale Zähler für Anhangs-Tabellen/-Abbildungen. Werden pro Anhang(teil) auf
+// 0 zurückgesetzt — Nur EINE Abbildung/Tabelle je Anhangteil.
+#let tab-anhang-counter = counter("tabelle-im-anhang")
+#let abb-anhang-counter = counter("abbildung-im-anhang")
 
 #let anhangsverzeichnis() = context {
   let eintraege = query(<anhang-eintrag>)
@@ -112,6 +129,7 @@
     #for eintrag in eintraege {
       let daten = eintrag.value
       let seite = counter(page).at(eintrag.location()).first()
+      // Anhangteile werden eingerückt und normal gewichtet, Hauptanhänge fett.
       let einzug = if daten.ebene == 1 { 0pt } else { 1em }
       let gewicht = if daten.ebene == 1 { "bold" } else { "regular" }
 
@@ -128,29 +146,54 @@
   ]
 }
 
-#let anhang(titel, body) = [
+// Hauptanhang. `label:` ermöglicht im Text einen klickbaren Verweis via @label.
+#let anhang(titel, body, label: none) = [
   #anhang-counter.step()
   #anhangteil-counter.update(0)
+  #tab-anhang-counter.update(0)
+  #abb-anhang-counter.update(0)
 
   #context {
     let nr = numbering("A", anhang-counter.get().at(0))
 
+    // Eintrag fürs Anhangsverzeichnis
     [
       #metadata((
-        ebene: 1,
-        nr: nr,
-        titel: titel,
-      )) <anhang-eintrag>
+        ebene: 1, 
+        nr: nr, 
+        titel: titel
+        )) <anhang-eintrag>
     ]
 
-    heading(numbering: none)[Anhang #nr: #titel]
+align(center)[
+  #heading(numbering: none, outlined: true)[
+    Anhang #nr:
+    #titel
+  ]
+]
+    // Unsichtbarer Anker für @label-Verweise.
+    if label != none {
+      [
+        #figure(
+          kind: "anhang", 
+          supplement: nr, 
+          numbering: "1",
+          caption: none,
+          outlined: false, 
+          []
+          )#label
+      ]
+    }
   }
 
   #body
 ]
 
-#let anhangteil(titel, body) = [
+// Anhangteil (A1, A2, …). `label:` analog zu `anhang(...)`.
+#let anhangteil(titel, body, label: none) = [
   #anhangteil-counter.step()
+  #tab-anhang-counter.update(0)
+  #abb-anhang-counter.update(0)
 
   #context {
     let haupt = numbering("A", anhang-counter.get().at(0))
@@ -159,13 +202,28 @@
 
     [
       #metadata((
-        ebene: 2,
-        nr: nr,
-        titel: titel,
-      )) <anhang-eintrag>
+        ebene: 2, 
+        nr: nr, 
+        titel: titel
+        )) <anhang-eintrag>
     ]
 
-    text(size: body-size, weight: "bold")[Anhang #nr: #titel]
+    align(center)[
+      #text(size: body-size, weight: "bold")[Anhang #nr: #titel]
+    ]
+
+    if label != none {
+      [
+        #figure(
+          kind: "anhang", 
+          supplement: nr, 
+          numbering: "1",
+          caption: none, 
+          outlined: false, 
+          []
+          )#label
+      ]
+    }
   }
 
   #v(6pt)
@@ -202,6 +260,20 @@
   ]
 }
 
+// Abbildung mit Caption und Quellenangabe.
+//
+// Parameter:
+//   pfad      -> Bilddatei (z. B. "/assets/foo.png")
+//   titel     -> Bildunterschrift; im Anhang ungenutzt (s. im-anhang)
+//   hinweis   -> optionaler Hinweistext über der Quelle
+//   quelle    -> Quellenangabe (Standard: "Eigene Darstellung.")
+//   breite    -> Bildbreite, z. B. 100%, 8cm, 0.5fr
+//   im-anhang -> false: normale Haupttext-Abbildung mit Nummer und Eintrag im
+//                       Abbildungsverzeichnis.
+//                true:  Abbildung steht in einem Anhang(teil). Keine eigene
+//                       Caption (Anhang-Titel = Bildtitel nach APA-Konvention),
+//                       kein Eintrag im Verzeichnis, max. 1 Bild pro Anhangteil.
+//   label     -> ermöglicht `Abb. @label`-Verweis im Text. Nur außerhalb von Anhängen.
 #let abbildung(
   pfad,
   titel,
@@ -209,38 +281,73 @@
   quelle: "Eigene Darstellung.",
   breite: 100%,
   hinweis-quelle-abstand: hinweis-quelle-standardabstand,
+  im-anhang: false,
+  label: none,
 ) = [
-  #abb-counter.step()
+  #if im-anhang {
+    abb-anhang-counter.step()
+  } else {
+    abb-counter.step()
+  }
 
   #context {
-    let nr = abb-counter.get().at(0)
+    // max. eine Anhangs-Abbildung pro Bereich.
+    if im-anhang {
+      let lokal = abb-anhang-counter.get().at(0)
+      assert(
+        lokal <= 1,
+        message: "Pro Anhang bzw. Anhangteil ist nur eine Abbildung mit "
+          + "`im-anhang: true` erlaubt. Für mehrere Abbildungen je Bereich "
+          + "legen Sie bitte zusätzliche `anhangteil(...)`-Abschnitte an.",
+      )
+    }
+
+    let nr = if im-anhang { none } else { str(abb-counter.get().at(0)) }
 
     block(
-      above: 12pt,
-      below: 12pt,
-      breakable: false,
+      above: 12pt,           // Abstand vor der Abbildung
+      below: 12pt,           // Abstand nach der Abbildung
+      breakable: false,      // verhindert Seitenumbruch innerhalb des Blocks
     )[
-      #metadata((
-        nr: nr,
-        titel: titel,
-      )) <abb-eintrag>
+      // Eintrag fürs Abbildungsverzeichnis nur außerhalb von Anhängen.
+      #if not im-anhang [
+        #metadata((
+          nr: nr, 
+          titel: titel
+          )) <abb-eintrag>
+      ]
 
       #grid(
-        columns: (1fr, breite, 1fr),
+        columns: (1fr, breite, 1fr),   // zentriert das Bild horizontal
         gutter: 0pt,
 
         [],
         [
           #set par(
-            justify: false,
-            first-line-indent: 0pt,
+            justify: false, 
+            first-line-indent: 0pt
           )
 
-          #text(size: caption-size)[Abb. #nr #titel]
-          #v(6pt)
+          #if not im-anhang [
+            #text(size: caption-size)[Abb. #nr #titel]
+
+            // Anker für @label-Verweise (nur außerhalb von Anhängen sinnvoll).
+            #if label != none [
+              #figure(
+                kind: "abbildung", 
+                supplement: nr, 
+                numbering: "1",
+                caption: none, 
+                outlined: false, 
+                []
+                )#label
+            ]
+
+            #v(6pt)
+          ]
 
           #image(pfad, width: 100%)
-          #v(3pt)
+          #v(3pt)               // Abstand zwischen Bild und Quelle/Hinweis
 
           #quelle-und-hinweis(
             hinweis: hinweis,
@@ -253,6 +360,7 @@
     ]
   }
 ]
+
 /*
  * ============================================================
  * TABELLEN UND TABELLENVERZEICHNIS
@@ -283,15 +391,24 @@
   ]
 }
 
-// Stil-Optionen für Tabellen:
-//   "voll"       -> komplettes Linienraster (Standard)
-//   "horizontal" -> nur horizontale Linien zwischen den Zeilen,
-//                   keine vertikalen Linien, keine oberste/unterste Rahmenlinie
+// Tabelle mit Caption und Quellenangabe.
 //
-// Breiten-Optionen:
-//   auto         -> Tabelle so breit wie ihr Inhalt, zentriert (Standard)
-//   100%, 1fr, … -> Tabelle nimmt die vorgegebene Breite ein (z. B. volle Seite)
-//   12cm, …      -> feste Breite
+// Parameter:
+//   titel     -> Tabellenüberschrift; im Anhang ungenutzt (s. im-anhang)
+//   hinweis   -> optionaler Hinweistext über der Quelle
+//   quelle    -> Quellenangabe (Standard: "Eigene Darstellung.")
+//   breite    -> auto: so breit wie Inhalt, zentriert
+//                100%, 12cm, 0.5fr: feste/relative Breite
+//                (bei expliziter Breite in #table flexible Spalten verwenden,
+//                z. B. columns: (1fr, 1fr))
+//   stil      -> "voll":       komplettes Linienraster (Standard)
+//                "horizontal": nur waagrechte Trennlinien, keine Außenrahmen
+//   im-anhang -> false: normale Haupttext-Tabelle mit Nummer und Eintrag im
+//                       Tabellenverzeichnis.
+//                true:  Tabelle steht in einem Anhang(teil). Keine eigene
+//                       Caption (Anhang-Titel = Tabellentitel, APA-Konvention),
+//                       kein Eintrag im Verzeichnis, max. 1 Tabelle pro Anhangteil.
+//   label     -> ermöglicht `Tab. @label`-Verweis im Text. Nur außerhalb von Anhängen.
 #let tabelle(
   titel,
   body,
@@ -300,25 +417,39 @@
   hinweis-quelle-abstand: hinweis-quelle-standardabstand,
   breite: auto,
   stil: "voll",
+  im-anhang: false,
+  label: none,
 ) = [
-  #tab-counter.step()
+  #if im-anhang {
+    tab-anhang-counter.step()
+  } else {
+    tab-counter.step()
+  }
 
   #context {
-    let nr = tab-counter.get().at(0)
+    // max. eine Anhangs-Tabelle pro Bereich.
+    if im-anhang {
+      let lokal = tab-anhang-counter.get().at(0)
+      assert(
+        lokal <= 1,
+        message: "Pro Anhang bzw. Anhangteil ist nur eine Tabelle mit "
+          + "`im-anhang: true` erlaubt. Für mehrere Tabellen je Bereich legen "
+          + "Sie bitte zusätzliche `anhangteil(...)`-Abschnitte an.",
+      )
+    }
 
-    // Wenn der Aufrufer keine explizite Breite angibt, wird die natürliche
-    // Tabellenbreite gemessen, damit Titel/Hinweis/Quelle linksbündig relativ zur
-    // (zentrierten) Tabelle stehen. Bei expliziter Breite (z. B. 100%) übernehmen
-    // wir diese direkt.
+    let nr = if im-anhang { none } else { str(tab-counter.get().at(0)) }
+
+    // Bei `breite: auto` natürliche Tabellenbreite messen, damit Titel/Quelle
+    // linksbündig zur (zentrierten) Tabelle ausgerichtet sind.
     let tab-breite = if breite == auto {
       measure(body).width
     } else {
       breite
     }
 
-    // Tabellen-Stil festlegen. Bei "horizontal" werden vertikale Linien sowie die
-    // oberste und unterste Rahmenlinie unterdrückt; übrig bleiben horizontale
-    // Trennlinien zwischen den Zeilen.
+    // Stil "horizontal": nur Trennlinien zwischen Zeilen, keine Außenrahmen,
+    // keine vertikalen Linien.
     let body-styled = if stil == "horizontal" {
       [
         #show table: set table(
@@ -336,28 +467,34 @@
     }
 
     block(
-      above: 12pt,
-      below: 12pt,
-      breakable: false,
+      above: 12pt,            // Abstand vor der Tabelle
+      below: 12pt,            // Abstand nach der Tabelle
+      breakable: false,       // verhindert Seitenumbruch innerhalb der Tabelle
       width: 100%,
     )[
-      #metadata((
-        nr: nr,
-        titel: titel,
-      )) <tab-eintrag>
+      // Eintrag fürs Tabellenverzeichnis nur außerhalb von Anhängen.
+      #if not im-anhang [
+        #metadata((nr: nr, titel: titel)) <tab-eintrag>
+        ]
 
       #align(center, block(width: tab-breite)[
-        #set par(
-          justify: false,
-          first-line-indent: 0pt,
-        )
+        #set par(justify: false, first-line-indent: 0pt)
         #set align(left)
 
-        #text(size: caption-size)[Tab. #nr #titel]
-        #v(6pt)
+        #if not im-anhang [
+          #text(size: caption-size)[Tab. #nr #titel]
+
+          // Anker für @label-Verweise (nur außerhalb von Anhängen sinnvoll).
+          #if label != none [
+            #figure(kind: "tabelle", supplement: nr, numbering: "1",
+                    caption: none, outlined: false, [])#label
+          ]
+
+          #v(6pt)
+        ]
 
         #body-styled
-        #v(6pt)
+        #v(6pt)               // Abstand zwischen Tabelle und Quelle/Hinweis
 
         #quelle-und-hinweis(
           hinweis: hinweis,
@@ -375,6 +512,10 @@
  * ============================================================
  */
 
+// Erzeugt das Literaturverzeichnis aus der BibTeX-Datei.
+//   datei -> Pfad zur .bib-Datei
+//   stil  -> Zitierstil, z. B. "apa", "ieee", "chicago-author-date"
+//            (siehe Typst-Doku: https://typst.app/docs/reference/model/bibliography/)
 #let literaturverzeichnis(
   datei: "references.bib",
   stil: "apa",
@@ -385,25 +526,17 @@
     #heading(numbering: none, outlined: true)[Literaturverzeichnis]
 
     #[
-      // Literaturverzeichnis linksbündig und mit hängendem Einzug.
+      // Linksbündig mit hängendem Einzug.
       #set par(
         justify: false,
-        leading: 0.5em,
-        hanging-indent: 1.27cm,
+        leading: 0.5em,           // Zeilenabstand innerhalb eines Eintrags
+        hanging-indent: 1.27cm,   // Einzug ab der zweiten Zeile
       )
 
-      #bibliography(
-        datei,
-        style: stil,
-        title: none,
-      )
+      #bibliography(datei, style: stil, title: none)
     ]
   ] else [
-    #bibliography(
-      datei,
-      style: stil,
-      title: none,
-    )
+    #bibliography(datei, style: stil, title: none)
   ]
 }
 
@@ -413,6 +546,8 @@
  * ============================================================
  */
 
+// Alle Parameter werden auf dem Deckblatt zentriert angeordnet. Abstände und
+// Schriftgrößen können bei Bedarf direkt unten im Body angepasst werden.
 #let deckblatt(
   logo: "assets/beaverbytes-logo.svg",
   arbeitstyp: "Arbeitstyp",
@@ -428,8 +563,8 @@
   #set page(numbering: none)
 
   #align(center)[
-    #image(logo, width: 6cm)
-    #v(2.6cm)
+    #image(logo, width: 6cm)        // Logo-Breite
+    #v(2.6cm)                       // Abstand unter dem Logo
 
     #text(size: 14pt)[#arbeitstyp]
     #v(0.5cm)
