@@ -55,7 +55,6 @@ typst-academic-template/
 ├── main_vorlage.typ      # Hauptdokument — hier wird der Inhalt geschrieben
 ├── references.bib        # BibTeX-Literaturquellen
 ├── assets/               # Logo und Abbildungen
-│   └── beaverbytes-logo.svg
 └── README.md
 ```
 
