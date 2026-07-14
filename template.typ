@@ -28,7 +28,11 @@
     size: body-size,
     lang: "de",           // Sprachcode, beeinflusst Silbentrennung und Anführungszeichen
     fill: black,          // Textfarbe
+    hyphenate: true,
+    top-edge: 0.8em,
+    bottom-edge: -0.2em        
   )
+
 
   #set par(
     justify: true,            // true = Blocksatz, false = Linksbündig
