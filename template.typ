@@ -10,7 +10,7 @@
 #let default-font = "Arial"                  // Schriftart Fließtext und Überschriften
 #let body-size = 11pt                        // Schriftgröße Fließtext
 #let caption-size = 10pt                     // Schriftgröße Captions, Quellen, Hinweise
-#let hinweis-quelle-standardabstand = 3pt    // Vertikaler Abstand zwischen Hinweis und Quelle
+#let hinweis-quelle-standardabstand = 2pt    // Vertikaler Abstand zwischen Hinweis und Quelle
 
 #let arbeit(body) = [
   #set page(
@@ -56,32 +56,30 @@
   }
 
   // Überschriftengrößen pro Ebene — hier anpassen, um die Hierarchie zu skalieren.
-  #show heading: it => {
-    let level = it.level
+#show heading: it => {
+  let level = it.level
 
-    let heading-size = if level == 1 {
-      16pt              // Größe Ebene 1 (=)
-    } else if level == 2 {
-      14pt              // Größe Ebene 2 (==)
-    } else {
-      body-size         // Größe Ebene 3+ (===)
-    }
+  let heading-size = 12pt
 
-    let spacing-below = if level == 1 { 12pt } else { 6pt }   // Abstand nach Überschrift
-
-    block(
-      above: 12pt,                   // Abstand vor Überschrift
-      below: spacing-below,
-    )[
-      #text(font: default-font, size: heading-size, weight: "bold")[
-        #if it.numbering != none {
-          numbering(it.numbering, ..counter(heading).at(it.location()))
-          h(0.6em)                   // Abstand zwischen Nummer und Titel
-        }
-        #it.body
-      ]
-    ]
+  let spacing-above = if level == 1 {
+    12pt
+  } else {
+    6pt
   }
+
+  block(
+    above: spacing-above,
+    below: 6pt,
+  )[
+    #text(font: default-font, size: heading-size, weight: "bold")[
+      #if it.numbering != none {
+        numbering(it.numbering, ..counter(heading).at(it.location()))
+        h(0.6em)
+      }
+      #it.body
+    ]
+  ]
+}
 
   #body
 ]
@@ -98,15 +96,32 @@
 // Einheitliche Ausgabe von optionalem Hinweis und Quellenangabe unter Tabellen/Abbildungen.
 #let quelle-und-hinweis(
   hinweis: none,
-  quelle: "Eigene Darstellung.",
+  quelle: "Eigene Darstellung",
   abstand: hinweis-quelle-standardabstand,
 ) = [
+  #set text(
+    font: default-font,
+    size: caption-size,
+  )
+
+  #set par(
+    justify: true,
+    leading: 2pt,
+    spacing: 0pt,
+    first-line-indent: 0pt,
+  )
+
+  #set align(left)
+
   #if hinweis != none [
-    #text(size: caption-size)[#hinweis]
-    #v(abstand)
+    #block(below: abstand)[
+      #hinweis
+    ]
   ]
 
-  #text(size: caption-size)[Quelle: #quelle]
+  #block[
+    Quelle: #quelle
+  ]
 ]
 
 /*
@@ -211,9 +226,9 @@ align(center)[
         titel: titel
         )) <anhang-eintrag>
     ]
-
+    
     align(center)[
-      #text(size: body-size, weight: "bold")[Anhang #nr: #titel]
+      #text(size: 12pt, weight: "bold")[Anhang #nr: #titel]
     ]
 
     if label != none {
@@ -230,7 +245,7 @@ align(center)[
     }
   }
 
-  #v(6pt)
+
   #body
 ]
 
@@ -310,7 +325,7 @@ align(center)[
 
     block(
       above: 12pt,           // Abstand vor der Abbildung
-      below: 12pt,           // Abstand nach der Abbildung
+      below: 6pt,           // Abstand nach der Abbildung
       breakable: false,      // verhindert Seitenumbruch innerhalb des Blocks
     )[
       // Eintrag fürs Abbildungsverzeichnis nur außerhalb von Anhängen.
@@ -473,7 +488,7 @@ align(center)[
     block(
       above: 12pt,            // Abstand vor der Tabelle
       below: 12pt,            // Abstand nach der Tabelle
-      breakable: false,       // verhindert Seitenumbruch innerhalb der Tabelle
+      breakable: true,       // erlaubt Seitenumbruch innerhalb der Tabelle
       width: 100%,
     )[
       // Eintrag fürs Tabellenverzeichnis nur außerhalb von Anhängen.
